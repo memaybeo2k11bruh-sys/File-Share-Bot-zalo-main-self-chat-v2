@@ -21,7 +21,39 @@ const LISTEN_MAX_PORT_ATTEMPTS = 10; // nếu port gốc vẫn bận, thử tố
 
 function createServer(bot) {
   const app = express();
+  // Xem QR đăng nhập Zalo có bảo vệ bằng token
+  app.get("/login-qr.png", (req, res) => {
+    const expectedToken = process.env.QR_VIEW_TOKEN;
+    const providedToken =
+      typeof req.query.token === "string" ? req.query.token : "";
 
+    if (!expectedToken) {
+      return res.status(503).send("QR viewer chưa được cấu hình.");
+    }
+
+    const expected = Buffer.from(expectedToken);
+    const provided = Buffer.from(providedToken);
+
+    if (
+      expected.length !== provided.length ||
+      !timingSafeEqual(expected, provided)
+    ) {
+      return res.status(403).send("Không có quyền xem QR.");
+    }
+
+    const qrPath = path.resolve(
+      __dirname,
+      bot.config.qrPath || "login-qr.png"
+    );
+
+    if (!fs.existsSync(qrPath)) {
+      return res.status(404).send("Chưa có ảnh QR. Hãy đợi bot tạo QR mới.");
+    }
+
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    res.setHeader("Content-Type", "image/png");
+    return res.sendFile(qrPath);
+  });
   app.use(express.static(path.join(__dirname, "public")));
 
   app.get("/api/health", (req, res) => {
@@ -147,8 +179,7 @@ async function listenWithRetry(app, port, host, logger) {
 
 async function startServer(bot, logger) {
   const app = createServer(bot);
-  const server = await listenWithRetry(app, bot.config.port, "127.0.0.1", logger);
+  const port = Number(process.env.PORT || bot.config.port);
+  const server = await listenWithRetry(app, port, "0.0.0.0", logger);
   return server;
 }
-
-export { createServer, startServer };
