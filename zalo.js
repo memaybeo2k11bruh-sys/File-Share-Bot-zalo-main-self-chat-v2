@@ -92,6 +92,8 @@ function ensureDependencies(logger) {
 }
 
 async function main() {
+    let httpServer;
+
     const logger = createLogger(config.logLevel);
     ensureDataStructure(__dirname, logger); // tự chuyển dữ liệu sang cấu trúc theo nhóm + báo file bản vá còn cũ
     await logger.banner(config.studioName || "NKNP STUDIO", "ZALO BOT • HỆ THỐNG THỜI GIAN THỰC", config.legacyVersion);
@@ -174,6 +176,16 @@ async function main() {
         }
     };
 
+        // ========== Dashboard khởi động trước khi đăng nhập ==========
+    try {
+        httpServer = await startServer(null, logger, config);
+        logger.info("[BASIC ] ✓ QR Viewer đã khởi động");
+    } catch (err) {
+        logger.error("[BASIC ] ✗ Không thể khởi động QR Viewer", {
+            message: err?.message ?? String(err),
+        });
+    }
+
     await loginWithRetry();
 
     // ========== 3. Adapter ==========
@@ -245,9 +257,14 @@ async function main() {
     }
 
     // ========== 8. Dashboard ==========
-    let httpServer;
     try {
         httpServer = await startServer(bot, logger);
+        logger.info("[BASIC ] ✓ Dashboard đã khởi động");
+    } catch (err) {
+        logger.error("[BASIC ] ✗ Không thể cập nhật Dashboard", {
+            message: err?.message ?? String(err),
+        });
+    }
         logger.info("[BASIC ] ✓ Dashboard đã khởi động");
     } catch (err) {
         logger.error("[BASIC ] ✗ Không thể khởi động dashboard", {
