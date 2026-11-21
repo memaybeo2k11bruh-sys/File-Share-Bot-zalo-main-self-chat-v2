@@ -42,11 +42,6 @@ function createServer(bot, config) {
 
 const qrPath = "/app/login-qr.png";
 
-const configuredPath = app.locals.config?.qrPath;
-const qrPath = configuredPath
-  ? path.resolve(__dirname, configuredPath)
-  : path.join(__dirname, "login-qr.png");
-
 console.log("[QR Viewer] Đường dẫn đang kiểm tra:", qrPath);
 console.log("[QR Viewer] File tồn tại:", fs.existsSync(qrPath));
 
