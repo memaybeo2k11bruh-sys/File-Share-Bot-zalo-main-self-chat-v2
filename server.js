@@ -183,3 +183,5 @@ async function startServer(bot, logger) {
   const server = await listenWithRetry(app, port, "0.0.0.0", logger);
   return server;
 }
+
+export { createServer, startServer };
