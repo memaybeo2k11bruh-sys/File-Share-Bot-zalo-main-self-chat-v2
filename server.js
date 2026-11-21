@@ -40,7 +40,7 @@ function createServer(bot, config) {
       return res.status(403).send("Không có quyền xem QR.");
     }
 
-   const configuredPath = app.locals.config?.qrPath;
+const qrPath = "/app/login-qr.png";
 
 const qrPath = configuredPath
   ? path.isAbsolute(configuredPath)
