@@ -256,31 +256,16 @@ async function main() {
         process.exit(1);
     }
 
-    // ========== 8. Dashboard ==========
-    try {
-        httpServer = await startServer(bot, logger);
-        logger.info("[BASIC ] ✓ Dashboard đã khởi động");
-    } catch (err) {
-        logger.error("[BASIC ] ✗ Không thể cập nhật Dashboard", {
-            message: err?.message ?? String(err),
-        });
-    }
-        logger.info("[BASIC ] ✓ Dashboard đã khởi động");
-    } catch (err) {
-        logger.error("[BASIC ] ✗ Không thể khởi động dashboard", {
-            message: err?.message ?? String(err),
-        });
-    }
 
-    await logger.ready({
-        name: config.botName,
-        lines: [
-            `Lệnh đã tải : ${bot?.commands?.size ?? "?"}`,
-            `Dashboard   : http://127.0.0.1:${config.port}`,
-            "Đang lắng nghe tin nhắn realtime...",
-        ],
+  // ========== 8. Dashboard ==========
+try {
+    httpServer = await startServer(bot, logger);
+    logger.info("[BASIC ] ✓ Dashboard đã khởi động");
+} catch (err) {
+    logger.error("[BASIC ] ✗ Không thể cập nhật Dashboard", {
+        message: err?.message ?? String(err),
     });
-
+}
     // ========== Graceful Shutdown ==========
     let shuttingDown = false;
 
