@@ -40,14 +40,20 @@ function createServer(bot, config) {
       return res.status(403).send("Không có quyền xem QR.");
     }
 
-    const configuredPath = app.locals.config?.qrPath;
-    const qrPath = configuredPath
-      ? path.resolve(__dirname, configuredPath)
-      : path.join(__dirname, "login-qr.png");
+   const configuredPath = app.locals.config?.qrPath;
 
-    if (!fs.existsSync(qrPath)) {
-      return res.status(404).send("Chưa có ảnh QR.");
-    }
+const qrPath = configuredPath
+  ? path.isAbsolute(configuredPath)
+    ? configuredPath
+    : path.resolve(process.cwd(), configuredPath)
+  : path.join(process.cwd(), "login-qr.png");
+
+console.log("[QR Viewer] Đường dẫn đang kiểm tra:", qrPath);
+console.log("[QR Viewer] File tồn tại:", fs.existsSync(qrPath));
+
+if (!fs.existsSync(qrPath)) {
+  return res.status(404).send("Chưa có ảnh QR.");
+}
 
     res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
     res.setHeader("Content-Type", "image/png");
